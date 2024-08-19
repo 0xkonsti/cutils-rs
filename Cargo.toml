@@ -13,3 +13,4 @@ path = "src/bin/wdt.rs"
 
 
 [dependencies]
+colored = "2.*.*"
