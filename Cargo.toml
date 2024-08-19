@@ -1,0 +1,10 @@
+[package]
+name = "cutils-rs"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "hello"
+path = "src/bin/hello.rs"
+
+[dependencies]
