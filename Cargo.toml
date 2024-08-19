@@ -7,4 +7,9 @@ edition = "2021"
 name = "hello"
 path = "src/bin/hello.rs"
 
+[[bin]]
+name = "wdt"
+path = "src/bin/wdt.rs"
+
+
 [dependencies]
