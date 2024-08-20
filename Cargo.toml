@@ -14,3 +14,4 @@ path = "src/bin/wdt.rs"
 
 [dependencies]
 colored = "2.*.*"
+clap = { version = "4.*.*", features = ["derive"] }

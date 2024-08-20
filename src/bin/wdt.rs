@@ -1,3 +1,4 @@
+use clap::Parser;
 use colored::Colorize;
 use std::path::Path;
 
@@ -6,6 +7,19 @@ const PREFIX_FIRST: &str = "╭";
 const PREFIX_MIDDLE: &str = "├";
 const PREFIX_LAST: &str = "╰";
 
+#[derive(Parser, Debug)]
+#[command(about, long_about = None)]
+#[clap(name = "wdt")]
+struct Cli {
+    /// The depth to traverse the directory tree
+    #[clap(short, long, default_value = "1")]
+    depth: u32,
+
+    /// The location to start the directory tree traversal
+    #[clap(value_parser, default_value = ".")]
+    location: String,
+}
+
 struct WDTArgs<'a> {
     path: &'a Path,
     base_depth: u32,
@@ -13,6 +27,14 @@ struct WDTArgs<'a> {
 }
 
 impl<'a> WDTArgs<'a> {
+    fn from_cli(cli: &'a Cli) -> Self {
+        WDTArgs {
+            path: Path::new(&cli.location),
+            base_depth: cli.depth,
+            depth: cli.depth,
+        }
+    }
+
     fn indent(&self) -> usize {
         (self.base_depth - self.depth) as usize
     }
@@ -100,7 +122,10 @@ fn working_directory_tree(args: &WDTArgs) -> Result<(), String> {
 }
 
 fn main() {
-    let args = WDTArgs::default();
+    let cli = Cli::parse();
+
+    // let args = WDTArgs::default();
+    let args = WDTArgs::from_cli(&cli);
 
     if let Err(e) = working_directory_tree(&args) {
         eprintln!("{}", e);
