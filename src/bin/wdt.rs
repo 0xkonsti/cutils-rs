@@ -58,20 +58,35 @@ impl Default for WDTArgs<'_> {
     }
 }
 
+fn colored_prefix(prefix: &str, indent: usize) -> String {
+    let color = match indent % 6 {
+        0 => "blue",
+        1 => "green",
+        2 => "red",
+        3 => "yellow",
+        4 => "magenta",
+        _ => "cyan",
+    };
+
+    prefix.color(color).to_string()
+}
+
 fn get_prefix_symbol(indent: usize, index: usize, total: usize) -> String {
-    match (index, total, indent) {
-        (0, _, 0) => PREFIX_FIRST,
-        (i, t, _) if i == t - 1 => PREFIX_LAST,
-        (_, _, _) => PREFIX_MIDDLE,
-    }
-    .to_string()
+    colored_prefix(
+        match (index, total, indent) {
+            (0, _, 0) => PREFIX_FIRST,
+            (i, t, _) if i == t - 1 => PREFIX_LAST,
+            (_, _, _) => PREFIX_MIDDLE,
+        },
+        indent,
+    )
 }
 
 fn format_name(path: &Path, name: &str, indent: usize, index: usize, total: usize, leaf: bool) -> String {
     format!(
         "{}{} {}",
         "  ".repeat(indent),
-        get_prefix_symbol(indent, index, total).dimmed(),
+        get_prefix_symbol(indent, index, total).bold(),
         if path.is_dir() {
             format!(
                 "{}/",
