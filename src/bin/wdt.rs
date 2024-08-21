@@ -18,32 +18,41 @@ struct Cli {
     /// The location to start the directory tree traversal
     #[clap(value_parser, default_value = ".")]
     location: String,
+
+    /// Set if the tree should be traversed to all leaf nodes
+    /// This will override the depth argument
+    #[clap(short, long)]
+    leaf: bool,
 }
 
 struct WDTArgs<'a> {
     path: &'a Path,
-    base_depth: u32,
     depth: u32,
+    indent: u32,
+    leaf: bool,
 }
 
 impl<'a> WDTArgs<'a> {
     fn from_cli(cli: &'a Cli) -> Self {
         WDTArgs {
             path: Path::new(&cli.location),
-            base_depth: cli.depth,
             depth: cli.depth,
+            indent: 0,
+            leaf: cli.leaf,
         }
     }
 
     fn indent(&self) -> usize {
-        (self.base_depth - self.depth) as usize
+        self.indent as usize
     }
 
     fn go_deep(&self, path: &'a Path) -> Self {
+        let depth = if self.leaf { 1 } else { self.depth - 1 };
         WDTArgs {
             path,
-            base_depth: self.base_depth,
-            depth: self.depth - 1,
+            depth,
+            indent: self.indent + 1,
+            leaf: self.leaf,
         }
     }
 }
@@ -52,8 +61,9 @@ impl Default for WDTArgs<'_> {
     fn default() -> Self {
         WDTArgs {
             path: Path::new("."),
-            base_depth: DEFAULT_DEPTH,
             depth: DEFAULT_DEPTH,
+            indent: 0,
+            leaf: false,
         }
     }
 }
@@ -107,7 +117,7 @@ fn working_directory_tree(args: &WDTArgs) -> Result<(), String> {
         return Err(format!("{} is not a directory", args.path.display()));
     }
 
-    if args.depth == 0 {
+    if !args.leaf && args.depth == 0 {
         return Ok(());
     }
 
